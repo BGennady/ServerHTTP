@@ -1,20 +1,40 @@
 package ru.netology;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // cписок допустимых путей
-        List<String> validPaths = Arrays.asList(
-                "/index.html", "/spring.svg", "/spring.png", "/resources.html", "/styles.css",
-                "/app.js", "/links.html", "/forms.html", "/classic.html", "/events.html", "/events.js"
-        );
+        final var server = new Server();
 
-        // объект сервера с допустимыми путями
-        Server server = new Server(validPaths);
+        // добавляем: метод, путь и (request и поток отправки клиенту)
+        server.addHandler("GET", "/message", (request, outputStream) ->{
+                    String response = "Ответ на запрос GET /messages";
+            try {
+                outputStream.write("HTTP/1.1 200 OK\r\n".getBytes());
+                outputStream.write(("Content-Length: " + response.length() + "\r\n").getBytes());
+                outputStream.write("\r\n".getBytes());
+                outputStream.write(response.getBytes());
+                outputStream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
 
-        // запуск сервера на порту 9999
-        server.start(9999);
+        server.addHandler("POST", "/messages", (request, outputStream) -> {
+            // Код обработки POST запроса на /messages
+            String response = "Ответ на запрос POST /messages";
+            try {
+                outputStream.write("HTTP/1.1 200 OK\r\n".getBytes());
+                outputStream.write(("Content-Length: " + response.length() + "\r\n").getBytes());
+                outputStream.write("\r\n".getBytes());
+                outputStream.write(response.getBytes());
+                outputStream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+       server.start(9999);
     }
 }
